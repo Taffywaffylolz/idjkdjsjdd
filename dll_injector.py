@@ -239,17 +239,19 @@ class DLLInjector(QMainWindow):
             QTabBar::tab {
                 background-color: #2d2d30;
                 color: #d4d4d4;
-                padding: 8px 16px;
+                padding: 8px 18px; /* slightly wider */
                 margin-right: 2px;
                 border-top-left-radius: 4px;
                 border-top-right-radius: 4px;
+                font-weight: 500;
             }
             QTabBar::tab:selected {
                 background-color: #1e1e1e;
                 border-bottom: 1px solid #1e1e1e;
+                color: #ffffff;
             }
             QTabBar::tab:hover {
-                background-color: #3e3e42;
+                background-color: #3a3a3e; /* subtle */
             }
             
             /* Buttons */
@@ -258,7 +260,7 @@ class DLLInjector(QMainWindow):
                 color: #ffffff;
                 border: 1px solid #0e639c;
                 border-radius: 3px;
-                padding: 6px 12px;
+                padding: 7px 13px; /* slightly larger */
                 font-weight: bold;
             }
             QPushButton:hover {
@@ -349,6 +351,7 @@ class DLLInjector(QMainWindow):
             QProgressBar::chunk {
                 background-color: #0e639c;
                 border-radius: 2px;
+                transition: width 200ms ease; /* smoother */
             }
             
             /* Dock Widgets */
@@ -495,8 +498,15 @@ class DLLInjector(QMainWindow):
         # DLL Injector Tab
         self.create_injector_tab()
         
+        # Keyauth Patcher Tab (safe placeholder)
+        self.create_key_management_tab()
+
         # Assembly Disassembly Tab
         self.create_disassembly_tab()
+
+        # Subtle tab UX tweaks
+        self.central_tabs.setDocumentMode(True)
+        self.central_tabs.setMovable(True)
         
     def create_process_tab(self):
         """Create process management tab"""
@@ -618,6 +628,54 @@ class DLLInjector(QMainWindow):
         layout.addWidget(log_group)
         
         self.central_tabs.addTab(injector_widget, 'DLL Injector')
+
+    def create_key_management_tab(self):
+        """Create a safe key management tab (no bypass functionality)"""
+        key_widget = QWidget()
+        layout = QVBoxLayout(key_widget)
+
+        # License/key input
+        license_group = QGroupBox('Key Management')
+        license_layout = QFormLayout(license_group)
+
+        self.key_input = QLineEdit()
+        self.key_input.setPlaceholderText('Enter your license key...')
+        license_layout.addRow('License Key:', self.key_input)
+
+        actions_layout = QHBoxLayout()
+        self.validate_key_btn = QPushButton('✅ Validate Key')
+        self.validate_key_btn.clicked.connect(self.validate_key_safely)
+        actions_layout.addWidget(self.validate_key_btn)
+        actions_layout.addStretch()
+        license_layout.addRow(actions_layout)
+
+        self.key_status_label = QLabel('Status: Not validated')
+        license_layout.addRow(self.key_status_label)
+
+        layout.addWidget(license_group)
+
+        # Detection controls
+        detect_group = QGroupBox('Key System Detection')
+        detect_layout = QVBoxLayout(detect_group)
+
+        self.auto_detect_checkbox = QCheckBox('Auto-detect key system on attach')
+        self.auto_detect_checkbox.setChecked(True)
+        detect_layout.addWidget(self.auto_detect_checkbox)
+
+        detect_actions = QHBoxLayout()
+        self.detect_btn = QPushButton('🔎 Detect Now')
+        self.detect_btn.clicked.connect(self.detect_key_system)
+        detect_actions.addWidget(self.detect_btn)
+        detect_actions.addStretch()
+        detect_layout.addLayout(detect_actions)
+
+        self.detect_status_label = QLabel('Detection: Idle')
+        detect_layout.addWidget(self.detect_status_label)
+
+        layout.addWidget(detect_group)
+        layout.addStretch()
+
+        self.central_tabs.addTab(key_widget, 'Keyauth Patcher')
         
     def create_disassembly_tab(self):
         """Create assembly disassembly tab"""
@@ -648,6 +706,25 @@ class DLLInjector(QMainWindow):
         layout.addWidget(self.disasm_area)
         
         self.central_tabs.addTab(disasm_widget, 'Disassembly')
+
+    def validate_key_safely(self):
+        """Simulate safe key validation without bypassing protections"""
+        key_text = self.key_input.text().strip()
+        if not key_text:
+            QMessageBox.warning(self, 'Warning', 'Please enter a license key to validate.')
+            return
+        # Placeholder: in legitimate workflows, validate via vendor API/SDK
+        self.key_status_label.setText('Status: Validation simulated (no network call)')
+        self.log_message('License key validation simulated safely (no bypass).')
+
+    def detect_key_system(self):
+        """Safe placeholder for detecting presence of a key system"""
+        if not self.target_process:
+            QMessageBox.information(self, 'Info', 'Attach to a process first to run detection.')
+            return
+        # Safe placeholder only; does not patch or alter target
+        self.detect_status_label.setText('Detection: Placeholder check complete (no patching performed)')
+        self.log_message('Ran safe key system detection placeholder. No patching performed.')
         
     def create_dock_widgets(self):
         """Create dockable widgets"""
